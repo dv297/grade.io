@@ -2,15 +2,22 @@ const { prisma } = require('../generated/prisma-client');
 
 // A `main` function so that we can use async/await
 async function main() {
-  // Create a new user called `Alice`
+  const newSchool = await prisma.createSchool({ name: 'University of Kansas' });
+  const schoolId = newSchool.id;
+
   const newUser = await prisma.createUser({
     firstName: 'Daniel',
     lastName: 'Vu',
-    email: 'dvv297@gmail.com',
+    email: 'dv@email.com',
+    school: {
+      connect: {
+        id: schoolId,
+      },
+    },
+    userRole: 'TEACHER',
   });
   console.log(`Created new user: ${newUser.name} (ID: ${newUser.id})`);
 
-  // Read all users from the database and print them to the console
   const allUsers = await prisma.users();
   console.log(allUsers);
 }
