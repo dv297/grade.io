@@ -1,4 +1,6 @@
 type Mutation {
     createUser(createUserInput: CreateUserInput): CreateUserOutput
     createSchool(createSchoolInput: CreateSchoolInput): CreateSchoolOutput
+    signup(userSignupInput: UserSignupInput): AuthPayload
+    login(userLoginInput: UserLoginInput): AuthPayload
 }

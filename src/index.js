@@ -1,25 +1,25 @@
+require('dotenv').config();
 const path = require('path');
-const express = require('express');
-const graphqlHTTP = require('express-graphql');
-const { GraphQLModule } = require('@graphql-modules/core');
+const { ApolloServer } = require('apollo-server');
 const { loadSchemaFiles, loadResolversFiles } = require('graphql-toolkit');
+
+const { prisma } = require('../generated/prisma-client');
 
 const graphqlRootDir = path.join(__dirname, 'graphql');
 const typeDefs = loadSchemaFiles(path.join(graphqlRootDir, 'schemas'));
 const resolvers = loadResolversFiles(path.join(graphqlRootDir, 'resolvers'));
 
-const { schema } = new GraphQLModule({
+const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: (request) => {
+    return {
+      request,
+      prisma,
+    };
+  },
 });
 
-const app = express();
-app.use(
-  '/graphql',
-  graphqlHTTP({
-    schema,
-    graphiql: true,
-  }),
-);
-
-app.listen(4000, () => console.log('Now browse to localhost:4000/graphql'));
+server.listen().then(({ url }) => {
+  console.log(`Server is running at ${url}`);
+});

@@ -23,3 +23,17 @@ input CreateUserInput {
 type CreateUserOutput {
     user: User!
 }
+
+input UserSignupInput {
+    password: String!
+    firstName: String!
+    lastName: String!
+    email: String!
+    schoolId: ID!
+    userRole: UserRole!
+}
+
+input UserLoginInput {
+    email: String!
+    password: String!
+}

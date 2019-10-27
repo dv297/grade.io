@@ -9,6 +9,7 @@ async function main() {
     firstName: 'Daniel',
     lastName: 'Vu',
     email: 'dv@email.com',
+    password: 'password',
     school: {
       connect: {
         id: schoolId,

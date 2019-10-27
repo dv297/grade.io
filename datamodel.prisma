@@ -20,7 +20,8 @@ type User {
   id: ID! @id
   firstName: String!
   lastName: String!
-  email: String!
+  email: String! @unique
+  password: String!
   school: School! @relation(link: TABLE, name: "UserToSchool")
   userRole: UserRole
 }

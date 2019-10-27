@@ -1,24 +1,28 @@
-const { prisma } = require('../../../generated/prisma-client');
+const checkAuthentication = require('../../utils/checkAuthentication');
 
 const resolver = {
   Query: {
-    user: async (root, { id }) => {
+    user: async (root, { id }, context) => {
+      checkAuthentication(context);
+
       const fragment = `
       fragment UserWithSchools on User {
         id
         firstName
         lastName
         email
-        schools {
+        school {
           id
           name
         }
       }`;
 
-      const user = await prisma.user({ id }).$fragment(fragment);
+      const user = await context.prisma.user({ id }).$fragment(fragment);
       return user;
     },
-    schools: async () => {
+    schools: async (root, arguments, context) => {
+      checkAuthentication(context);
+
       const fragment = `
         fragment SchoolWithUsers on School {
           id
@@ -33,7 +37,7 @@ const resolver = {
         }
         `;
 
-      const schools = await prisma.schools().$fragment(fragment);
+      const schools = await context.prisma.schools().$fragment(fragment);
       return schools;
     },
   },
