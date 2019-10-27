@@ -1,0 +1,25 @@
+type SchoolForUser {
+    id: ID!
+    name: String!
+}
+
+type User {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    school: SchoolForUser!
+    userRole: UserRole!
+}
+
+input CreateUserInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    schoolId: ID!
+    userRole: UserRole!
+}
+
+type CreateUserOutput {
+    user: User!
+}

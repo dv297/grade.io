@@ -1,0 +1,26 @@
+enum UserRole {
+  APPLICATION_ADMIN
+  SCHOOL_ADMIN
+  TEACHER
+  STUDENT
+}
+
+type School {
+  id: ID! @id
+  users: [User!]! @relation(name: "UserToSchool")
+  name: String!
+}
+
+type UserToSchool @relationTable {
+  user: User!
+  school: School!
+}
+
+type User {
+  id: ID! @id
+  firstName: String!
+  lastName: String!
+  email: String!
+  school: School! @relation(link: TABLE, name: "UserToSchool")
+  userRole: UserRole
+}

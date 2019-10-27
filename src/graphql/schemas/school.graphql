@@ -1,0 +1,21 @@
+type School {
+    id: ID!
+    users: [User]
+    name: String!
+}
+
+type UserForSchool {
+    firstName: String!
+    lastName: String!
+    userRole: UserRole!
+}
+
+input CreateSchoolInput {
+    name: String!
+    userIds: [ID]
+}
+
+type CreateSchoolOutput {
+    name: String!
+    users: [UserForSchool]
+}

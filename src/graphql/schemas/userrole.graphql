@@ -1,0 +1,6 @@
+enum UserRole {
+    APPLICATION_ADMIN
+    SCHOOL_ADMIN
+    TEACHER
+    STUDENT
+}

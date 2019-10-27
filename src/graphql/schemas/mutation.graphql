@@ -1,0 +1,4 @@
+type Mutation {
+    createUser(createUserInput: CreateUserInput): CreateUserOutput
+    createSchool(createSchoolInput: CreateSchoolInput): CreateSchoolOutput
+}
