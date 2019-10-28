@@ -1,0 +1,19 @@
+type ApplicationAdmin {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+}
+
+input CreateApplicationAdminInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    password: String!
+    createAdminSecret: String!
+}
+
+type AdminAuthPayload {
+    token: String
+    admin: ApplicationAdmin
+}

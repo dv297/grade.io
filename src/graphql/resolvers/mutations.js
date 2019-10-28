@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const checkAuthentication = require('../../utils/checkAuthentication');
+
 const userWithSchoolFragment = `
       fragment UserWithSchool on User {
         id
@@ -16,6 +18,31 @@ const userWithSchoolFragment = `
 
 const resolver = {
   Mutation: {
+    createApplicationAdmin: async (root, { createApplicationAdminInput }, context) => {
+      const createAdminSecret = process.env.CREATE_ADMIN_SECRET;
+
+      if (createApplicationAdminInput.createAdminSecret !== createAdminSecret) {
+        throw new Error('Invalid secret');
+      }
+
+      const password = await bcrypt.hash(createApplicationAdminInput.password, 10);
+
+      const prismaCreateApplicationAdminInput = {
+        firstName: createApplicationAdminInput.firstName,
+        lastName: createApplicationAdminInput.lastName,
+        email: createApplicationAdminInput.email,
+        password,
+      };
+
+      const user = await context.prisma.createApplicationAdmin(prismaCreateApplicationAdminInput);
+
+      const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
+
+      return {
+        token,
+        user,
+      };
+    },
     signup: async (root, { userSignupInput }, context) => {
       const password = await bcrypt.hash(userSignupInput.password, 10);
 
@@ -41,7 +68,7 @@ const resolver = {
         user,
       };
     },
-    login: async (root, { userLoginInput }) => {
+    login: async (root, { userLoginInput }, context) => {
       const potentialUser = await context.prisma.user({ email: userLoginInput.email });
 
       if (!potentialUser) {
@@ -61,7 +88,7 @@ const resolver = {
         user,
       };
     },
-    createSchool: async (root, { createSchoolInput }) => {
+    createSchool: async (root, { createSchoolInput }, context) => {
       checkAuthentication(context);
 
       const newSchool = await context.prisma.createSchool(createSchoolInput);

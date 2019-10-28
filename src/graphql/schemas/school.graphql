@@ -16,6 +16,7 @@ input CreateSchoolInput {
 }
 
 type CreateSchoolOutput {
+    id: ID!
     name: String!
     users: [UserForSchool]
 }
