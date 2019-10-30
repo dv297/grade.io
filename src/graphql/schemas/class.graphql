@@ -1,0 +1,13 @@
+type Class {
+    id: ID!
+    name: String!
+}
+
+input CreateClassInput {
+    teacherId: ID!
+    name: String!
+}
+
+type CreateClassOutput {
+    class: Class
+}

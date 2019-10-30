@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const { prisma } = require('../../../generated/prisma-client');
+
 const checkAuthentication = require('../../utils/checkAuthentication');
 
 const userWithSchoolFragment = `
@@ -18,7 +20,7 @@ const userWithSchoolFragment = `
 
 const resolver = {
   Mutation: {
-    createApplicationAdmin: async (root, { createApplicationAdminInput }, context) => {
+    createApplicationAdmin: async (root, { createApplicationAdminInput }) => {
       const createAdminSecret = process.env.CREATE_ADMIN_SECRET;
 
       if (createApplicationAdminInput.createAdminSecret !== createAdminSecret) {
@@ -34,7 +36,7 @@ const resolver = {
         password,
       };
 
-      const user = await context.prisma.createApplicationAdmin(prismaCreateApplicationAdminInput);
+      const user = await prisma.createApplicationAdmin(prismaCreateApplicationAdminInput);
 
       const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
 
@@ -43,7 +45,7 @@ const resolver = {
         user,
       };
     },
-    signup: async (root, { userSignupInput }, context) => {
+    signup: async (root, { userSignupInput }) => {
       const password = await bcrypt.hash(userSignupInput.password, 10);
 
       const prismaCreateUserInput = {
@@ -59,17 +61,25 @@ const resolver = {
         password,
       };
 
-      const user = await context.prisma.createUser(prismaCreateUserInput).$fragment(userWithSchoolFragment);
+      const user = await prisma.createUser(prismaCreateUserInput).$fragment(userWithSchoolFragment);
+
+      let teacher;
+      if (userSignupInput.userRole === 'TEACHER') {
+        teacher = await prisma.createTeacher({ user: { connect: { id: user.id } } });
+      }
 
       const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
 
       return {
         token,
-        user,
+        user: {
+          ...user,
+          teacher,
+        },
       };
     },
-    login: async (root, { userLoginInput }, context) => {
-      const potentialUser = await context.prisma.user({ email: userLoginInput.email });
+    login: async (root, { userLoginInput }) => {
+      const potentialUser = await prisma.user({ email: userLoginInput.email });
 
       if (!potentialUser) {
         throw new Error('Login Error');
@@ -81,7 +91,7 @@ const resolver = {
       }
 
       const token = jwt.sign({ userId: potentialUser.id }, process.env.APP_SECRET);
-      const user = await context.prisma.user({ id: potentialUser.id }).$fragment(userWithSchoolFragment);
+      const user = await prisma.user({ id: potentialUser.id }).$fragment(userWithSchoolFragment);
 
       return {
         token,
@@ -91,8 +101,24 @@ const resolver = {
     createSchool: async (root, { createSchoolInput }, context) => {
       checkAuthentication(context);
 
-      const newSchool = await context.prisma.createSchool(createSchoolInput);
+      const newSchool = await prisma.createSchool(createSchoolInput);
       return newSchool;
+    },
+    createClass: async (root, { createClassInput }, context) => {
+      checkAuthentication(context);
+
+      const newClass = await prisma.createClass({
+        name: createClassInput.name,
+        teacher: {
+          connect: {
+            id: createClassInput.teacherId,
+          },
+        },
+      });
+
+      return {
+        class: newClass,
+      };
     },
   },
 };

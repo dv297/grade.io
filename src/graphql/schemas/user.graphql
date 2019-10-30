@@ -10,18 +10,7 @@ type User {
     email: String!
     school: SchoolForUser!
     userRole: UserRole!
-}
-
-input CreateUserInput {
-    firstName: String!
-    lastName: String!
-    email: String!
-    schoolId: ID!
-    userRole: UserRole!
-}
-
-type CreateUserOutput {
-    user: User!
+    teacher: UserTeacherConnection
 }
 
 input UserSignupInput {
@@ -36,4 +25,9 @@ input UserSignupInput {
 input UserLoginInput {
     email: String!
     password: String!
+}
+
+type UserTeacherConnection {
+    id: ID!
+    classes: [Class!]!
 }

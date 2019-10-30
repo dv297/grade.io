@@ -23,6 +23,7 @@ type User {
   password: String!
   school: School! @relation(link: TABLE, name: "UserToSchool")
   userRole: UserRole
+  teacher: Teacher @relation(link: INLINE, name: "UserForTeacher", onDelete: CASCADE)
 }
 
 type ApplicationAdmin {
@@ -31,4 +32,21 @@ type ApplicationAdmin {
   lastName: String!
   email: String! @unique
   password: String!
+}
+
+type TeacherForClass @relationTable {
+  teacher: Teacher!
+  class: Class!
+}
+
+type Teacher {
+  id: ID! @id
+  user: User! @relation(name: "UserForTeacher")
+  classes: [Class!]! @relation(name: "TeacherForClass", onDelete: CASCADE)
+}
+
+type Class {
+  id: ID! @id
+  name: String!
+  teacher: Teacher! @relation(link: TABLE, name: "TeacherForClass")
 }

@@ -9,26 +9,25 @@ async function createSchool() {
   const graphqlApiUrl = 'http://localhost:4000/graphql';
 
   const createAdminMutation = `
-    mutation {
-      createApplicationAdmin(
-        createApplicationAdminInput: {
-          createAdminSecret: "${process.env.CREATE_ADMIN_SECRET}"
-          firstName: "${seedSampleData.admin.firstName}"
-          lastName: "${seedSampleData.admin.lastName}"
-          email: "${seedSampleData.admin.email}"
-          password: "${seedSampleData.admin.password}"
-        }
-      ) {
-        token
-        admin {
-          id
-          firstName
-          lastName
-          email
-        }
+  mutation {
+    createApplicationAdmin(
+      createApplicationAdminInput: {
+        createAdminSecret: "${process.env.CREATE_ADMIN_SECRET}"
+        firstName: "${seedSampleData.admin.firstName}"
+        lastName: "${seedSampleData.admin.lastName}"
+        email: "${seedSampleData.admin.email}"
+        password: "${seedSampleData.admin.password}"
+      }
+    ) {
+      token
+      admin {
+        id
+        firstName
+        lastName
+        email
       }
     }
-  `;
+  }`;
 
   const result = await request(graphqlApiUrl, createAdminMutation);
 
@@ -39,13 +38,12 @@ async function createSchool() {
   } = result;
 
   const createSchoolMutation = `
-    mutation {
-      createSchool(createSchoolInput: { name: "${seedSampleData.school.name}" }) {
-        id
-        name
-      }
+  mutation {
+    createSchool(createSchoolInput: { name: "${seedSampleData.school.name}" }) {
+      id
+      name
     }
-  `;
+  }`;
 
   const client = new GraphQLClient(graphqlApiUrl, {
     headers: {
@@ -58,14 +56,14 @@ async function createSchool() {
   console.log('* School created: ' + schoolResult.createSchool.name);
 
   const createTeacherMutation = `
-    mutation {
-      signup(userSignupInput:{
-        email: "${seedSampleData.teacher.email}",
-        password: "${seedSampleData.teacher.password}",
-        firstName: "${seedSampleData.teacher.firstName}",
-        lastName: "${seedSampleData.teacher.lastName}",
-        schoolId: "${schoolResult.createSchool.id}",
-        userRole: TEACHER
+  mutation {
+    signup(userSignupInput:{
+      email: "${seedSampleData.teacher.email}",
+      password: "${seedSampleData.teacher.password}",
+      firstName: "${seedSampleData.teacher.firstName}",
+      lastName: "${seedSampleData.teacher.lastName}",
+      schoolId: "${schoolResult.createSchool.id}",
+      userRole: TEACHER
     }) {
       token
       user {
@@ -77,23 +75,25 @@ async function createSchool() {
           name
         }
         userRole
+        teacher {
+          id
+        }
       }
-  }
-}
-  `;
+    }
+  }`;
 
   const teacherResult = await client.request(createTeacherMutation);
   console.log('* Teacher created: ' + teacherResult.signup.user.firstName + ' ' + teacherResult.signup.user.lastName);
 
   const createStudentMutation = `
-    mutation {
-      signup(userSignupInput:{
-        email: "${seedSampleData.student.email}",
-        password: "${seedSampleData.student.password}",
-        firstName: "${seedSampleData.student.firstName}",
-        lastName: "${seedSampleData.student.lastName}",
-        schoolId: "${schoolResult.createSchool.id}",
-        userRole: STUDENT 
+  mutation {
+    signup(userSignupInput: {
+      email: "${seedSampleData.student.email}",
+      password: "${seedSampleData.student.password}",
+      firstName: "${seedSampleData.student.firstName}",
+      lastName: "${seedSampleData.student.lastName}",
+      schoolId: "${schoolResult.createSchool.id}",
+      userRole: STUDENT 
     }) {
       token
       user {
@@ -106,9 +106,8 @@ async function createSchool() {
         }
         userRole
       }
-  }
-}
-  `;
+    }
+  }`;
 
   const studentResult = await client.request(createStudentMutation);
   console.log('* Student created: ' + studentResult.signup.user.firstName + ' ' + studentResult.signup.user.lastName);
@@ -121,12 +120,24 @@ async function createSchool() {
     }) {
       token
     }
-  }
-  `;
+  }`;
 
   console.log('* Attempting login...');
   await client.request(loginMutation);
   console.log('* Login was successful!');
+
+  const createClassMutation = `
+  mutation {
+    createClass(createClassInput: {teacherId: "${teacherResult.signup.user.teacher.id}", name: "Full Stack Bootcamp"}) {
+      class {
+        id
+        name
+      }
+    }
+  }`;
+
+  const createClassResult = await client.request(createClassMutation);
+  console.log('Class created: ' + createClassResult.createClass.class.name);
 }
 
 createSchool();

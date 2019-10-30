@@ -1,7 +1,7 @@
 type Mutation {
     createApplicationAdmin(createApplicationAdminInput: CreateApplicationAdminInput): AdminAuthPayload
-    createUser(createUserInput: CreateUserInput): CreateUserOutput
     createSchool(createSchoolInput: CreateSchoolInput): CreateSchoolOutput
+    createClass(createClassInput: CreateClassInput): CreateClassOutput
     signup(userSignupInput: UserSignupInput): AuthPayload
     login(userLoginInput: UserLoginInput): AuthPayload
 }
