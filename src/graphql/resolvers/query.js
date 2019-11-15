@@ -6,42 +6,13 @@ const resolver = {
     user: async (root, { id }, context) => {
       checkAuthentication(context);
 
-      const fragment = `
-      fragment UserWithSchools on User {
-        id
-        firstName
-        lastName
-        email
-        school {
-          id
-          name
-        }
-        teacher {
-          id
-        }
-      }`;
-
-      const user = await prisma.user({ id }).$fragment(fragment);
+      const user = await prisma.user({ id });
       return user;
     },
     schools: async (root, arguments, context) => {
       checkAuthentication(context);
 
-      const fragment = `
-        fragment SchoolWithUsers on School {
-          id
-          name
-          users {
-            id
-            firstName
-            lastName
-            email
-            userRole
-          }
-        }
-        `;
-
-      const schools = await prisma.schools().$fragment(fragment);
+      const schools = await prisma.schools();
       return schools;
     },
     teacher: async (root, { id }, context) => {
@@ -84,6 +55,10 @@ const resolver = {
     },
   },
   User: {
+    school: async (root) => {
+      const school = await prisma.user({ id: root.id }).school();
+      return school;
+    },
     teacher: async (root) => {
       const teacher = await prisma.teacher({ id: root.teacher.id });
 
@@ -91,6 +66,12 @@ const resolver = {
         id: teacher.id,
         classes: teacher.class ? teacher.classes : [],
       };
+    },
+  },
+  Schools: {
+    users: async (root) => {
+      const users = await prisma.school({ id: root.id }).users();
+      return users;
     },
   },
 };
